@@ -1,7 +1,7 @@
 const express = require("express");
 
 const app = express();
-
+//creating a middleware
 app.use(express.json());
 
 const database = {
@@ -24,9 +24,6 @@ const database = {
     },
   ],
 };
-app.listen(3000, () => {
-  console.log("working fine app is running on port 3000");
-});
 app.get("/", (req, res) => {
   res.send(database.users);
 });
@@ -54,6 +51,51 @@ app.post("/register", (req, res) => {
   });
   res.json(database.users.at(-1));
   console.log(database);
+});
+
+app.get("/profile/:id", (req, res) => {
+  const { id } = req.params;
+  let found = false;
+  database.users.forEach((user) => {
+    if (user.id === Number(id)) {
+      console.log(user.id);
+      found = true;
+      console.log(user);
+      return res.json(user);
+    }
+  });
+  if (!found) {
+    res.status(400).json("user not found");
+  }
+
+  //Alternative code
+  // const user = database.users.filter((user) => {
+  //   found = true;
+  //   return user.id === Number(id);
+  // });
+  // res.json(user.at(0));
+  // if (!found || !user) {
+  //   res.status(400).json("no user");
+  // }
+});
+
+app.put("/image", (req, res) => {
+  const { id } = req.body;
+  let found = false;
+  database.users.forEach((user) => {
+    if (user.id === Number(id)) {
+      found = true;
+      user.entries++;
+      return res.json(user.entries);
+    }
+  });
+  if (!found) {
+    res.status(400).json("no image loaded");
+  }
+});
+
+app.listen(3000, () => {
+  console.log("working fine app is running on port 3000");
 });
 
 /*
