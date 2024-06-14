@@ -1,5 +1,5 @@
 const express = require("express");
-
+const bcrypt = require("bcrypt-nodejs");
 const app = express();
 //creating a middleware
 app.use(express.json());
@@ -23,12 +23,38 @@ const database = {
       joined: new Date(),
     },
   ],
+  login: [
+    {
+      id: "1233",
+      hash: "",
+      email: "john@gmail.com",
+    },
+  ],
 };
 app.get("/", (req, res) => {
   res.send(database.users);
 });
 
 app.post("/signin", (req, res) => {
+  // Load hash from your password DB.
+
+  bcrypt.compare(
+    "grape",
+    "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
+    function (err, res) {
+      console.log("first guess:", res);
+      // res == true
+    }
+  );
+
+  bcrypt.compare(
+    "veggies",
+    "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
+    function (err, res) {
+      // res = false
+      console.log("second guess:", res);
+    }
+  );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -41,6 +67,12 @@ app.post("/signin", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
+  bcrypt.hash(password, null, null, function (err, hash) {
+    database.login.hash = hash;
+    console.log(database.login);
+    // Store hash in your password DB.
+    console.log(hash);
+  });
   database.users.push({
     id: 125,
     name: name,
