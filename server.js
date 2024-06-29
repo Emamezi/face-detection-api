@@ -1,8 +1,27 @@
 const express = require("express");
 const bcrypt = require("bcrypt-nodejs");
 const app = express();
+const cors = require("cors");
+const knex = require("knex");
+
+const db = knex({
+  client: "pg",
+  connection: {
+    host: "127.0.0.1",
+    // port: 3306,
+    user: "emameziebebeinwe",
+    password: "",
+    database: "smart-brain",
+  },
+});
+
+// db.select("*")
+//   .from("users")
+//   .then((data) => console.log(data));
+
 //creating a middleware
 app.use(express.json());
+app.use(cors());
 
 const database = {
   users: [
@@ -38,28 +57,28 @@ app.get("/", (req, res) => {
 app.post("/signin", (req, res) => {
   // Load hash from your password DB.
 
-  bcrypt.compare(
-    "grape",
-    "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
-    function (err, res) {
-      console.log("first guess:", res);
-      // res == true
-    }
-  );
+  // bcrypt.compare(
+  //   "grape",
+  //   "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
+  //   function (err, res) {
+  //     console.log("first guess:", res);
+  //     // res == true
+  //   }
+  // );
 
-  bcrypt.compare(
-    "veggies",
-    "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
-    function (err, res) {
-      // res = false
-      console.log("second guess:", res);
-    }
-  );
+  // bcrypt.compare(
+  //   "veggies",
+  //   "$2a$10$CVzpB5h/4rJrY0Rf0Nq6OuErDQrVFl9HRA7qWbW.PBvJxokL0A1r.",
+  //   function (err, res) {
+  //     // res = false
+  //     console.log("second guess:", res);
+  //   }
+  // );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
   ) {
-    res.json("successful");
+    res.json(database.users[0]);
   } else {
     res.status(400).json("error signing in ");
   }
@@ -69,36 +88,41 @@ app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
   bcrypt.hash(password, null, null, function (err, hash) {
     database.login.hash = hash;
-    console.log(database.login);
     // Store hash in your password DB.
-    console.log(hash);
   });
-  database.users.push({
-    id: 125,
-    name: name,
-    email: email,
-    password: password,
-    entries: 0,
-    joined: new Date(),
-  });
-  res.json(database.users.at(-1));
-  console.log(database);
+  db("users")
+    .returning("*")
+    .insert({ name: name, email: email, joined: new Date() })
+    .then((user) => res.json(user[0]))
+    .catch((err) => res.status(400).json("unable to register"));
+  // console.log(database);
 });
 
 app.get("/profile/:id", (req, res) => {
   const { id } = req.params;
-  let found = false;
-  database.users.forEach((user) => {
-    if (user.id === Number(id)) {
-      console.log(user.id);
-      found = true;
-      console.log(user);
-      return res.json(user);
-    }
-  });
-  if (!found) {
-    res.status(400).json("user not found");
-  }
+
+  db("users")
+    .select("*")
+    .where({
+      id: id,
+    })
+    .then(
+      (user) => {
+        if (user.length) {
+          res.json(user[0]);
+        }
+      }
+      // res.json(user)
+    )
+    .catch((err) => res.status(400).json("user not found"));
+  // database.users.forEach((user) => {
+  //   if (user.id === Number(id)) {
+  //     // console.log(user.id);
+  //     found = true;
+  //     // console.log(user);
+  //     return res.json(user);
+  //   }
+  // });
 
   //Alternative code
   // const user = database.users.filter((user) => {
