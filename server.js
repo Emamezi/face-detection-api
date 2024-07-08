@@ -11,11 +11,9 @@ const profile = require("./controllers/profile");
 const db = knex({
   client: "pg",
   connection: {
-    host: "postgresql-aerodynamic-68704",
-    // port: 3306,
-    user: "emameziebebeinwe",
-    password: "",
-    database: "smart-brain",
+    // host: "postgresql-aerodynamic-68704",
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
   },
 });
 
