@@ -1,3 +1,5 @@
+const Clarifai = require("clarifai");
+
 const handleImage = (req, res, db) => {
   const { id } = req.body;
   db("users")
@@ -10,4 +12,5 @@ const handleImage = (req, res, db) => {
 
 module.exports = {
   handleImage,
+  // handleImgaeGet,
 };

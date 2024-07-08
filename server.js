@@ -35,10 +35,15 @@ app.post("/register", (req, res) =>
   register.handleRegister(req, res, db, bcrypt)
 );
 
+// app.post("imageGet", (res, req) => image.handleImageGet(req, res));
+
 app.get("/profile/:id", (req, res) => profile.handleProfileGet(req, res, db));
 
 app.put("/image", (req, res) => image.handleImage(req, res, db));
 
-app.listen(3000, () => {
-  console.log("working fine app is running on port 3000");
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`server is listening on port ${PORT}`);
 });
+
+console.log(PORT);
