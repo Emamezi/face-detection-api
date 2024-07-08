@@ -42,7 +42,7 @@ app.get("/profile/:id", (req, res) => profile.handleProfileGet(req, res, db));
 app.put("/image", (req, res) => image.handleImage(req, res, db));
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+app.listen(PORT || 3000, () => {
   console.log(`server is listening on port ${PORT}`);
 });
 
